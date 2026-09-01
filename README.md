@@ -59,6 +59,12 @@ The parser accepts `1. Question` and `1.Question`, choices using `.` or `)`, Tha
 - `/quiz/[id]` — setup, randomized practice/test session, results, and mistake practice
 - `/manage` — PIN-gated upload, parsing preview, save, preview, and delete
 
+## Subjects and assignment tracking
+
+Parents can choose a consistent subject category for every quiz. The public library displays subject filters automatically. In `/manage`, **Create Assignment Link** creates a unique share link; opening that link records an in-progress attempt, and finishing the quiz records the server-verified score. The parent activity section shows not started, in progress, completed, the latest score, and prior attempts. Direct non-assignment quiz links remain playable without creating tracking records.
+
+After updating an existing installation to this version, run the latest `supabase/schema.sql` again in Supabase SQL Editor. It safely keeps the existing `quizzes` table and adds the new `assignments` and `attempts` tables.
+
 ## Quality checks
 
 Run `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build`.
