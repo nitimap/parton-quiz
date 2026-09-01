@@ -10,6 +10,7 @@ type Parsed = ParseResult & { filename: string };
 export function ManageClient() {
   const [auth, setAuth] = useState<boolean | null>(null);
   const [pin, setPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [parsed, setParsed] = useState<Parsed | null>(null);
@@ -53,7 +54,12 @@ export function ManageClient() {
   };
 
   if (auth === null) return <main className="shell py-16 text-center">Loading parent area…</main>;
-  if (!auth) return <main className="shell py-16"><form onSubmit={login} className="card mx-auto max-w-md p-7 sm:p-10"><p className="eyebrow">Parent area</p><h1 className="mt-2 text-3xl font-bold">Enter parent PIN</h1><p className="mt-2 text-[var(--muted)]">Quiz management is protected for this browser session.</p><label className="label mt-8" htmlFor="pin">PIN</label><input id="pin" className="field" type="password" inputMode="numeric" value={pin} onChange={e => setPin(e.target.value)} autoFocus required/><button disabled={busy} className="btn btn-primary mt-4 w-full">{busy ? "Checking…" : "Continue"}</button>{message && <p className="mt-4 rounded-xl bg-[var(--red-soft)] p-3 text-[var(--red)]">{message}</p>}<Link href="/" className="mt-6 block text-center text-sm font-bold text-[var(--blue)]">← Back to quiz library</Link></form></main>;
+  if (!auth) return <main className="shell py-16"><form onSubmit={login} className="card mx-auto max-w-md p-7 sm:p-10">
+    <p className="eyebrow">Parent area</p><h1 className="mt-2 text-3xl font-bold">Enter parent PIN</h1><p className="mt-2 text-[var(--muted)]">Quiz management is protected for this browser session.</p>
+    <label className="label mt-8" htmlFor="pin">PIN</label>
+    <div className="relative"><input id="pin" className="field pr-24" type={showPin ? "text" : "password"} inputMode="numeric" value={pin} onChange={e => setPin(e.target.value)} autoFocus required/><button type="button" className="absolute inset-y-1 right-1 rounded-lg px-3 text-sm font-bold text-[var(--blue)] hover:bg-[var(--blue-soft)]" onClick={() => setShowPin(value => !value)} aria-label={showPin ? "Hide PIN" : "Show PIN"} aria-pressed={showPin}>{showPin ? "Hide" : "Show"}</button></div>
+    <button disabled={busy} className="btn btn-primary mt-4 w-full">{busy ? "Checking…" : "Continue"}</button>{message && <p className="mt-4 rounded-xl bg-[var(--red-soft)] p-3 text-[var(--red)]">{message}</p>}<Link href="/" className="mt-6 block text-center text-sm font-bold text-[var(--blue)]">← Back to quiz library</Link>
+  </form></main>;
 
   return <main className="shell py-10 sm:py-14">
     <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Parent area</p><h1 className="mt-2 text-4xl font-bold">Manage Quizzes</h1></div><Link className="btn btn-secondary" href="/">View Quiz Library</Link></div>
