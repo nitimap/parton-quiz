@@ -1,0 +1,1 @@
+import Link from "next/link";export default function NotFound(){return <main className="shell py-16"><div className="card mx-auto max-w-xl p-10 text-center"><h1 className="text-3xl font-bold">Quiz not found</h1><p className="mt-3 text-[var(--muted)]">It may have been deleted.</p><Link href="/" className="btn btn-primary mt-6">Back to Quiz Library</Link></div></main>}

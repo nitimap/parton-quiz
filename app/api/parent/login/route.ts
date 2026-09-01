@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server"; import { pinMatches,setParentCookie } from "@/lib/auth";
+const attempts=new Map<string,{count:number;until:number}>();
+export async function POST(req:Request){const ip=req.headers.get("x-forwarded-for")?.split(",")[0]??"local",now=Date.now(),state=attempts.get(ip);if(state&&state.until>now)return NextResponse.json({error:"Too many attempts. Try again in 5 minutes."},{status:429});const {pin}=await req.json();if(!pinMatches(String(pin??""))){const count=(state?.count??0)+1;attempts.set(ip,{count,until:count>=5?now+300000:0});return NextResponse.json({error:"Incorrect PIN."},{status:401})}attempts.delete(ip);await setParentCookie();return NextResponse.json({ok:true})}

@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest";import {shuffle} from "./shuffle";import {createSession} from "./quizUtils";import {sampleQuiz} from "./sampleData";
+describe("randomization",()=>{it("selects requested count",()=>expect(createSession(sampleQuiz.questions,1)).toHaveLength(1));it("shuffle preserves every item",()=>expect(shuffle([1,2,3,4]).sort()).toEqual([1,2,3,4]));it("choice shuffle preserves the correct answer",()=>{for(let i=0;i<20;i++){const q=createSession([sampleQuiz.questions[0]])[0];expect(q.choices.some(c=>c.id===q.correctChoiceId)).toBe(true)}})});

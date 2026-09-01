@@ -1,0 +1,1 @@
+export const strings = { appName: "Quiz Practice", choose: "Choose a quiz to practice.", start: "Start Quiz", practice: "Practice Mode", test: "Test Mode", next: "Next Question", complete: "Quiz Complete!", mistakes: "Practice My Mistakes", playAgain: "Play Again", back: "Back to Quiz Library", manage: "Manage Quizzes", upload: "Upload Quiz", save: "Save Quiz" };

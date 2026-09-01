@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function SiteHeader(){ return <header className="border-b border-black/5 bg-[var(--paper)]"><div className="shell flex min-h-20 items-center justify-between gap-4"><Link href="/" className="flex items-center gap-3 text-lg font-bold"><span className="grid size-10 place-items-center rounded-xl bg-[var(--blue)] text-white">Q</span>Quiz Practice</Link><Link href="/manage" className="text-sm font-semibold text-[var(--muted)] hover:text-[var(--navy)]">Parent area</Link></div></header> }
