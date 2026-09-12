@@ -7,18 +7,16 @@ const thaiLabels = ["ก", "ข", "ค", "ง"];
 const labelIndex = (label: string) => thaiLabels.includes(label) ? thaiLabels.indexOf(label) : "ABCD".indexOf(label.toUpperCase());
 const clean = (s: string) => s.replace(/\u00a0/g, " ").replace(/\t/g, "    ").trim();
 export async function parseDocxQuiz(buffer: Buffer): Promise<ParseResult> {
+  const html = await mammoth.convertToHtml({ buffer }, { styleMap: ["u => u"] });
+  const listAwareResult = parseQuizText(htmlToNumberedText(html.value));
+  if (listAwareResult.success) return listAwareResult;
   const raw = await mammoth.extractRawText({ buffer });
   const rawResult = parseQuizText(raw.value);
-  if (rawResult.success) return rawResult;
-  const html = await mammoth.convertToHtml({ buffer });
-  const listAwareResult = parseQuizText(htmlToNumberedText(html.value));
-  return listAwareResult.success ? listAwareResult : rawResult;
+  return rawResult.success ? rawResult : listAwareResult;
 }
 
-function decodeHtml(value: string) {
+function decodeEntities(value: string) {
   return value
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
@@ -27,6 +25,18 @@ function decodeHtml(value: string) {
     .replace(/&#39;|&apos;/gi, "'")
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
     .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(Number.parseInt(code, 16)));
+}
+
+const segmenter = new Intl.Segmenter("th", { granularity: "grapheme" });
+function underlineText(value: string) {
+  return Array.from(segmenter.segment(value), item => /\s/.test(item.segment) ? item.segment : `${item.segment}\u0332`).join("");
+}
+
+function decodeHtml(value: string) {
+  return decodeEntities(value)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<u(?:\s[^>]*)?>([\s\S]*?)<\/u>/gi, (_, content: string) => underlineText(content.replace(/<[^>]+>/g, "")))
+    .replace(/<[^>]+>/g, "");
 }
 
 export function htmlToNumberedText(html: string) {
