@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import JSZip from "jszip";
 import type { ParseResult, QuizChoice, QuizQuestion } from "@/types/quiz";
 const questionLine = /^\s*(\d+)\s*[.)]\s*(.+)$/;
 const choiceLine = /^\s*([กขคงA-Da-d])\s*[.)]\s*(.+)$/;
@@ -7,10 +8,11 @@ const thaiLabels = ["ก", "ข", "ค", "ง"];
 const labelIndex = (label: string) => thaiLabels.includes(label) ? thaiLabels.indexOf(label) : "ABCD".indexOf(label.toUpperCase());
 const clean = (s: string) => s.replace(/\u00a0/g, " ").replace(/\t/g, "    ").trim();
 export async function parseDocxQuiz(buffer: Buffer): Promise<ParseResult> {
-  const html = await mammoth.convertToHtml({ buffer }, { styleMap: ["u => u"] });
+  const markedBuffer = await markDocxUnderlines(buffer);
+  const html = await mammoth.convertToHtml({ buffer: markedBuffer });
   const listAwareResult = parseQuizText(htmlToNumberedText(html.value));
   if (listAwareResult.success) return listAwareResult;
-  const raw = await mammoth.extractRawText({ buffer });
+  const raw = await mammoth.extractRawText({ buffer: markedBuffer });
   const rawResult = parseQuizText(raw.value);
   return rawResult.success ? rawResult : listAwareResult;
 }
@@ -27,16 +29,29 @@ function decodeEntities(value: string) {
     .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(Number.parseInt(code, 16)));
 }
 
-const segmenter = new Intl.Segmenter("th", { granularity: "grapheme" });
-function underlineText(value: string) {
-  return Array.from(segmenter.segment(value), item => /\s/.test(item.segment) ? item.segment : `${item.segment}\u0332`).join("");
+const underlineStart = "\uE000", underlineEnd = "\uE001";
+
+export async function markDocxUnderlines(buffer: Buffer) {
+  const zip = await JSZip.loadAsync(buffer);
+  const documentFile = zip.file("word/document.xml");
+  if (!documentFile) return buffer;
+  const xml = await documentFile.async("string");
+  const marked = xml.replace(/<w:r\b[\s\S]*?<\/w:r>/g, (run) => {
+    const underline = run.match(/<w:u\b[^>]*\/?\s*>/i)?.[0];
+    if (!underline || /w:val\s*=\s*["'](?:none|0|false)["']/i.test(underline)) return run;
+    return run.replace(/(<w:t\b[^>]*>)([\s\S]*?)(<\/w:t>)/g, `$1${underlineStart}$2${underlineEnd}$3`);
+  });
+  if (marked === xml) return buffer;
+  zip.file("word/document.xml", marked);
+  return zip.generateAsync({ type: "nodebuffer" });
 }
 
 function decodeHtml(value: string) {
   return decodeEntities(value)
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<u(?:\s[^>]*)?>([\s\S]*?)<\/u>/gi, (_, content: string) => underlineText(content.replace(/<[^>]+>/g, "")))
-    .replace(/<[^>]+>/g, "");
+    .replace(/<u(?:\s[^>]*)?>([\s\S]*?)<\/u>/gi, (_, content: string) => `[u]${content.replace(/<[^>]+>/g, "")}[/u]`)
+    .replace(/<[^>]+>/g, "")
+    .replace(new RegExp(`${underlineStart}([\\s\\S]*?)${underlineEnd}`, "g"), "[u]$1[/u]");
 }
 
 export function htmlToNumberedText(html: string) {

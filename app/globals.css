@@ -20,6 +20,7 @@ button,a,input,textarea { font:inherit; } button,a { -webkit-tap-highlight-color
 .verse-line { display:grid; grid-template-columns:repeat(var(--verse-columns, 2),minmax(0,1fr)); column-gap:clamp(.75rem,4vw,3rem); align-items:start; }
 .verse-line:has(.verse-part:only-child) { --verse-columns:1; }
 .verse-part { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+.quiz-underline { text-decoration-line:underline; text-decoration-thickness:.08em; text-underline-offset:.14em; }
 .question-text { font-size:clamp(1rem,4.6vw,1.875rem); }
 summary .formatted-text, summary .formatted-text-normal { display:inline; }
 @media(max-width:520px){ .verse-line{column-gap:.75rem} .verse-part{font-size:.9em; line-height:1.65} }
