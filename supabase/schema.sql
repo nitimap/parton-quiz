@@ -19,6 +19,8 @@ create table if not exists public.assignments (
   created_at timestamptz not null default now()
 );
 create index if not exists assignments_quiz_id_idx on public.assignments (quiz_id);
+alter table public.assignments add column if not exists archived_at timestamptz;
+create index if not exists assignments_archived_at_idx on public.assignments (archived_at, created_at desc);
 create table if not exists public.attempts (
   id uuid primary key default gen_random_uuid(),
   assignment_id uuid not null references public.assignments(id) on delete cascade,

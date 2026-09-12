@@ -6,4 +6,4 @@ export type AnswerRecord = { questionId: string; selectedChoiceId: string; corre
 export type ParseResult = { success: boolean; questions: QuizQuestion[]; warnings: string[]; errors: string[]; answerCount: number };
 export type QuizMode = "practice" | "test";
 export type AssignmentAttempt = { id: string; status: "in_progress" | "completed"; mode?: QuizMode; question_count?: number; correct_count?: number; score_percent?: number; started_at: string; completed_at?: string };
-export type QuizAssignment = { id: string; quiz_id: string; label: string; token: string; created_at: string; quizzes?: { title: string; subject?: string }; attempts: AssignmentAttempt[] };
+export type QuizAssignment = { id: string; quiz_id: string; label: string; token: string; created_at: string; archived_at?: string | null; quizzes?: { title: string; subject?: string }; attempts: AssignmentAttempt[] };
