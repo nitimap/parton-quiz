@@ -14,4 +14,15 @@ button,a,input,textarea { font:inherit; } button,a { -webkit-tap-highlight-color
 .btn { display:inline-flex; min-height:48px; align-items:center; justify-content:center; gap:8px; border-radius:14px; padding:10px 18px; font-weight:700; cursor:pointer; transition:.18s; border:1px solid transparent; }
 .btn-primary { color:white; background:var(--blue); } .btn-primary:hover { background:#375477; transform:translateY(-1px); } .btn-secondary { color:var(--navy); background:white; border-color:var(--line); } .btn-danger { color:white; background:var(--red); } .label { display:block; font-size:14px; font-weight:700; margin-bottom:6px; } .field { width:100%; min-height:48px; border:1px solid #cfd6dd; border-radius:12px; background:white; padding:10px 12px; } .eyebrow { color:var(--blue); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
 .card p.text-2xl, .card button > span.flex-1, .card summary, .card details li { white-space:break-spaces; overflow-wrap:anywhere; tab-size:4; }
+/* Preserve author-defined verse lines. Long lines scale down, then scroll inside the text area rather than reflowing the poem. */
+.card p.text-2xl, .card summary {
+  white-space:pre;
+  overflow-x:auto;
+  overflow-y:hidden;
+  max-width:100%;
+  tab-size:4;
+  scrollbar-width:thin;
+}
+.card p.text-2xl { font-size:clamp(1rem,4.6vw,1.875rem); }
+.card summary { font-size:clamp(.875rem,3.2vw,1rem); }
 @media(max-width:480px){ .shell{width:min(100% - 20px,1080px)} .card{border-radius:18px} }
