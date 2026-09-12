@@ -5,7 +5,7 @@ const choiceLine = /^\s*([กขคงA-Da-d])\s*[.)]\s*(.+)$/;
 const answerLine = /^\s*(\d+)\s*[.)]?\s*([กขคงA-Da-d])\s*$/;
 const thaiLabels = ["ก", "ข", "ค", "ง"];
 const labelIndex = (label: string) => thaiLabels.includes(label) ? thaiLabels.indexOf(label) : "ABCD".indexOf(label.toUpperCase());
-const clean = (s: string) => s.replace(/\u00a0/g, " ").replace(/[ \t]+/g, " ").trim();
+const clean = (s: string) => s.replace(/\u00a0/g, " ").replace(/\t/g, "    ").trim();
 export async function parseDocxQuiz(buffer: Buffer): Promise<ParseResult> {
   const raw = await mammoth.extractRawText({ buffer });
   const rawResult = parseQuizText(raw.value);
@@ -17,7 +17,7 @@ export async function parseDocxQuiz(buffer: Buffer): Promise<ParseResult> {
 
 function decodeHtml(value: string) {
   return value
-    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
@@ -54,8 +54,8 @@ export function parseQuizText(text: string): ParseResult {
     const c = line.match(choiceLine), q = line.match(questionLine);
     if (c && current) current.choices.push({ label: c[1], text: c[2] });
     else if (q) { current = { number: Number(q[1]), text: q[2], choices: [] }; raw.push(current); }
-    else if (current && !current.choices.length) current.text += ` ${line}`;
-    else if (current?.choices.length) current.choices[current.choices.length - 1].text += ` ${line}`;
+    else if (current && !current.choices.length) current.text += `\n${line}`;
+    else if (current?.choices.length) current.choices[current.choices.length - 1].text += `\n${line}`;
   }
   if (!raw.length) errors.push("No numbered questions were found.");
   const seen = new Set<number>(); raw.forEach((q) => { if (seen.has(q.number)) errors.push(`Duplicate question number ${q.number}.`); seen.add(q.number); if (q.choices.length !== 4) errors.push(`Question ${q.number} has ${q.choices.length} answer choices; exactly 4 are required.`); });
